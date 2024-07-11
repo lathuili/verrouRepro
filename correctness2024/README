@@ -1,0 +1,25 @@
+
+## Reproducibility Notice for the Paper:
+## Verrou: Floating-point error localization without recompilation
+
+
+# Verrou installation
+
+# Follow verrou installation:  http://github.com/edf-hpc/verrou
+# used commit eecd8cce87265a6f96186e7eae7a970d59b5da40
+# The author hope every thing will still work with master.
+
+
+# Source verrou environment :
+source INSTALLVERROU/env.sh #INSTALLVERROU is the --prefix= set during verrou configuration
+
+# integrate
+cd integrate
+make #generate evry Latex figure
+
+
+#lis
+cd lis
+make #clone lis and compil lis
+cd verrouStudy
+make #generate evry Latex figure
