@@ -1,0 +1,7 @@
+filter_line_exec: ./pythonFilter.py --loop-fusion=10 --outer --outer-loop-fusion=3
+cmatch: *relative residual = NAN*
+apply: exit
+cmatch: *iteration:    48*
+apply: exit
+cmatch: outer iteration:    20  relative residual = *
+apply: exit
