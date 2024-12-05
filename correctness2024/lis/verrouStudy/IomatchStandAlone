@@ -1,3 +1,4 @@
+verbose: 0
 filter_line_exec: ./pythonFilter.py --loop-fusion=10 --outer --outer-loop-fusion=3
 cmatch: *relative residual = NAN*
 apply: exit

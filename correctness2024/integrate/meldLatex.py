@@ -64,7 +64,7 @@ def splitLeftStr(name, maxChar, splitRightChar=" $\hookleftarrow$ "):
         return [unknownConv(name)]
     
     
-def generateDiffLatex(data, outputName, maxLine, maxChar):
+def generateDiffLatex(data, outputName, maxLine, maxChar, rightShort=6):
     handler=open(outputName,"w+")
     handler.write("\\begin{tabular}{ll|ll}\n")
     handler.write("\\toprule")
@@ -72,22 +72,30 @@ def generateDiffLatex(data, outputName, maxLine, maxChar):
     for i in range(len(data)):
         line=data[i]
         strNameLeftTab=splitLeftStr(line["bbRename"], maxChar)
-        strNameRight=unknownConv(line["bbRename"][0:6])+"..."
+        strNameRight=unknownConv(line["bbRename"])
+        if len(strNameRight)>= rightShort:
+            strNameRightTab=[strNameRight[0:rightShort]+"..."]
+        else:
+            strNameRightTab=strNameLeftTab
         tupleCountStr= strDiffInt(line["count"])
         leftStr=tupleCountStr[0]
         rightStr=tupleCountStr[1]
 
         if leftStr!=rightStr:
-            handler.write("\\rowcolor{red!15}\n") 
-        strLine="%s &:%s & %s &:%s\\\\ \n"%(leftStr, strNameLeftTab[0], rightStr,strNameRight)
+            handler.write("\\rowcolor{red!15}\n")
+        strLine="%s &:%s & %s &:%s\\\\ \n"%(leftStr, strNameLeftTab[0], rightStr,strNameRightTab[0])
         if i< maxLine:
             handler.write(strLine )
         else:
             handler.write("%"+strLine )
-        for followingLine in strNameLeftTab[1:]:
+        for i in range(1, len(strNameLeftTab)):
+            followingLine =strNameLeftTab[i]
+            followingLineRight=""
+            if i < len(strNameRightTab):
+                followingLineRight=strNameRightTab[i]
             if leftStr!=rightStr:
                 handler.write("\\rowcolor{red!15}\n")
-            strLine="%s &$\quad$%s & %s &%s\\\\ \n"%("", followingLine, "","")
+            strLine="%s &$\quad$%s & %s &$\quad$%s\\\\ \n"%("", followingLine, "",followingLineRight)
             if i< maxLine:
                 handler.write(strLine )
             else:
@@ -102,15 +110,19 @@ def generateDiffLatex(data, outputName, maxLine, maxChar):
 if __name__=="__main__":
     maxLine=100
     charMax=1000
+    rightShort=6
     if len(sys.argv)>=5:
         maxLine=int(sys.argv[4])
 
-    if len(sys.argv)==6:
+    if len(sys.argv)>=6:
         charMax=int(sys.argv[5])
+    if len(sys.argv)>=7:
+        rightShort=int(sys.argv[6])
 
     generateDiffLatex(merge( loadFile(sys.argv[1]),
                              loadFile(sys.argv[2])),
                       sys.argv[3],
                       maxLine,
-                      charMax
+                      charMax,
+                      rightShort
                       )

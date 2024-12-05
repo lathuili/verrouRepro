@@ -1,4 +1,4 @@
-workList=unitTest unitTestTask dd.line dd.line.post dd.line.post.dump dd.task dd.stdout postTabDDMin0.tex postTabDDMin1.tex postTabDDMin1Dump.tex unittest.output.txt plotStat.png dd.line.result.tex dd.stdout.tab.result.tex dd.stdout.result.tex dd.stdout.tab dd.task.result.tex
+workList=unitTest unitTestTask dd.line dd.line.post dd.line.post.dump dd.task dd.stdout postTabDDMin0.tex postTabDDMin1.tex postTabDDMin1Dump.tex unittest.output.txt plotStat.png dd.line.result.tex dd.stdout.tab.result.tex dd.stdout.result.tex dd.stdout.tab dd.task.result.tex postTabDDMin1-large.tex postTabDDMin1-large-short.tex postTabDDMin0-large.tex postTabDDMin1Dump-large-short.tex
 
 .PHONY:
 
@@ -13,6 +13,9 @@ unitTest: unitTest.cxx integrate.hxx
 
 plotStat.png: unitTest
 	verrou_plot_stat --nruns=20 --time --time-ref=1 --png=plotStat.png --log-scalx --rounding=nearest,random  --seed=42 ./statRun.sh ./extractTime.sh
+
+plotStatConv.png: unitTest
+	verrou_plot_stat --nruns=1 --time --time-ref=1 --png=plotStatConv.png --log-scalx --rounding=nearest  --seed=42 ./statRun.sh ./extractTime.sh
 
 unitTestTask: unitTestTask.cxx integrate.hxx
 	g++ $(FLAGS) -o $@ $< -lverrouTask
@@ -43,6 +46,15 @@ dd.task: unitTestTask ddRunTask.sh ddCmp.py
 #post-treatment for LatexInclude
 unittest.output.txt:unitTest
 	./unitTest > unittest.output.txt
+unittest.output_random_1.txt:unitTest
+	valgrind --tool=verrou --rounding-mode=random --libm=instrumented  --vr-seed=1 ./unitTest > unittest.output_random_1.txt
+unittest.output_random_2.txt:unitTest
+	valgrind --tool=verrou --rounding-mode=random --libm=instrumented  --vr-seed=2 ./unitTest > unittest.output_random_2.txt
+
+diffOutput.tex: unittest.output.txt  unittest.output_random_1.txt
+	 ./meldOutput.py unittest.output.txt  unittest.output_random_1.txt > diffOutput.tex
+
+
 
 postTabDDMin1.tex: dd.line.post meldLatex.py
 	./meldLatex.py dd.line.post/ddmin1-trace/default/dd.run0/cover/cover00000-seqCount0  dd.line.post/NoPerturbation-trace/default/dd.run0/cover/cover00000-seqCount0 postTabDDMin1.tex 8 35
@@ -50,9 +62,22 @@ postTabDDMin1.tex: dd.line.post meldLatex.py
 postTabDDMin0.tex: dd.line.post meldLatex.py
 	./meldLatex.py dd.line.post/ddmin0-trace/default/dd.run0/cover/cover00000-seqCount0  dd.line.post/NoPerturbation-trace/default/dd.run0/cover/cover00000-seqCount0 postTabDDMin0.tex 8 35
 
+postTabDDMin1-large.tex: dd.line.post meldLatex.py Makefile
+	./meldLatex.py dd.line.post/ddmin1-trace/default/dd.run0/cover/cover00000-seqCount0  dd.line.post/NoPerturbation-trace/default/dd.run0/cover/cover00000-seqCount0 postTabDDMin1-large.tex 7 55 200
+
+postTabDDMin1-large-short.tex: dd.line.post meldLatex.py Makefile
+	./meldLatex.py dd.line.post/ddmin1-trace/default/dd.run0/cover/cover00000-seqCount0  dd.line.post/NoPerturbation-trace/default/dd.run0/cover/cover00000-seqCount0 postTabDDMin1-large-short.tex 4 55 200
+
+
+postTabDDMin0-large.tex: dd.line.post meldLatex.py Makefile
+	./meldLatex.py dd.line.post/ddmin0-trace/default/dd.run0/cover/cover00000-seqCount0  dd.line.post/NoPerturbation-trace/default/dd.run0/cover/cover00000-seqCount0 postTabDDMin0-large.tex 7 55 200
+
 
 postTabDDMin1Dump.tex:dd.line.post.dump
 	./meldLatex.py dd.line.post.dump/ddmin1-trace/default/dd.run0/cover/cover00001-seqCount0  dd.line.post.dump/NoPerturbation-trace/default/dd.run0/cover/cover00001-seqCount0 postTabDDMin1Dump.tex 8 35
+
+postTabDDMin1Dump-large-short.tex:dd.line.post.dump
+	./meldLatex.py dd.line.post.dump/ddmin1-trace/default/dd.run0/cover/cover00001-seqCount0  dd.line.post.dump/NoPerturbation-trace/default/dd.run0/cover/cover00001-seqCount0 postTabDDMin1Dump-large-short.tex 4 55 200
 
 dd.line.result.tex: dd.line ./ddLineLatex.sh
 	./ddLineLatex.sh dd.line > dd.line.result.tex
